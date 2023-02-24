@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
-import csv
+import pandas as pd
+from Fitting import run_fitter
 
 
 class European_Call_Payoff:
@@ -19,11 +20,10 @@ class GeometricBrownianMotion:
 
     def simulate_paths(self):
         while (self.T - self.dt > 0):
-            # dWt = np.random.normal(0, math.sqrt(self.dt))  # Brownian motion
             dWt = np.random.beta(14, 6) - 0.65  # Beta distribution
-
             dYt = self.drift*self.dt + self.volatility*dWt  # Change in price
             self.current_price += dYt  # Add the change to the current price
+
             # Append new price to series
             self.prices.append(self.current_price)
             self.T -= self.dt  # Account for the step in time
@@ -39,7 +39,7 @@ class GeometricBrownianMotion:
         self.simulate_paths()
 
 
-def run(csvFile=None, plot=False):
+def run_monte_carlo(plot=False):
     paths = 5000
     initial_price = 100
     drift = -0.01
@@ -48,22 +48,10 @@ def run(csvFile=None, plot=False):
     T = 1
     price_paths = []
 
-    if csvFile is None:
-        # Generate a set of sample paths
-        for i in range(0, paths):
-            price_paths.append(GeometricBrownianMotion(
-                initial_price, drift, volatility, dt, T).prices)
-    else:
-        file = open(csvFile)
-        reader = csv.reader(file, delimiter=',')
-        for row in reader:
-            if row[0] == "Price":
-                continue
-
-            price_paths.append(float(row[0]))
-
-        print("Price Paths: ")
-        print(price_paths)
+    # Generate a set of sample paths
+    for i in range(0, paths):
+        price_paths.append(GeometricBrownianMotion(
+            initial_price, drift, volatility, dt, T).prices)
 
     call_payoffs = []
     ec = European_Call_Payoff(100)
@@ -78,17 +66,51 @@ def run(csvFile=None, plot=False):
             plt.plot(price_path)
         plt.show()
 
-    print("The average value of each option is " + str(np.average(call_payoffs)))
+    return np.average(call_payoffs)
+
+def get_competitive_prices(csvFile1, csvFile2, useMax=False):
+    vanillaPrice = run_monte_carlo()
+    dataset1 = pd.read_csv(csvFile1)
+    dataset2 = pd.read_csv(csvFile2)
+
+    if useMax:
+        dataset1 = dataset1["Price"].values
+        dataset2 = dataset2["Price"].values
+        var1 = float(max(dataset1)) / 10
+        var2 = float(max(dataset2)) / 10
+    else:
+        var1 = np.average(dataset1) / 10
+        var2 = np.average(dataset2) / 10
+
+    maximum = max(vanillaPrice, var1, var2)
+    if maximum == vanillaPrice:
+        return "Vanilla option", vanillaPrice
+    elif maximum == var1:
+        return "Stock1", var1
+    else:
+        return "Stock2-1", var2
+
 
 def Part1():
     print("Part 1:")
-    run()
+    print("The average value of each option is " + str(run_monte_carlo()))
+
 
 def Part2():
     print("Part 2:")
-    run()
-    run("stock1.csv")
-    run("stock2-1.csv")
+
+    print("Best distribution fit for each:")
+    run_fitter("stock1.csv")
+    run_fitter("stock2-1.csv")
+
+    print("###############################################")
+    name, max = get_competitive_prices("stock1.csv", "stock2-1.csv")
+    print("The most competitive option is " + name + " with a price of " + str(max))
+
+    print("\n###############################################")
+    name, max = get_competitive_prices("stock1.csv", "stock2-1.csv", True)
+    print("The most competitive option is based on the max is " + name + " with a price of " + str(max))
+
 
 # Part1()
 Part2()

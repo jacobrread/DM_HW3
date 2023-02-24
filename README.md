@@ -10,15 +10,13 @@ For stock1.csv the best fit was a 'lognorm' with the following parameters:
 For stock2-1.csv the best fit was 'chi2' with the following parameters:
 'df': 151.15702025584812, 'loc': 49.5410601597393, 'scale': 0.3529476376911609
 
+"Second, find the option price for the asset in Part 1 if the value is determined by outperforming the average value of the two options."
+* After a few runs this is the result I got: The most competitive option is Stock2-1 with a price of 10.289150684931508
+
+"Compute again for outperforming the max value of either of the two options. (Assume the same 1-year window of expiry)"
+* After a few runs this is the result I got: The most competitive option is based on the max is Stock2-1 with a price of 12.2
+
 ## Running this program
 To run my code for part 1 simply uncomment the Part1() method call at the end of EuropeanMonteCarlo.py and run the python file.
 
 To run my code for part 2 simply uncomment the Part2() method call at the end of EuropeanMonteCarlo.py and run the python file.
-
-
-### all distributions results
-Best for stock1.csv: 
-{'dweibull': {'c': 1.3673277264003287, 'loc': 100.44393205651139, 'scale': 4.473217390326258}}
-
-Best for stock2-1.csv: 
-{'recipinvgauss': {'mu': 0.007944861329583223, 'loc': 34.301568367779936, 'scale': 0.5407452830600006}}

@@ -13,3 +13,5 @@
 
 # Mac stuff
 .Ds_Store
+
+__pycache__/

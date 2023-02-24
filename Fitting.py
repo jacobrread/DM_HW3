@@ -1,12 +1,7 @@
-import numpy as np
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 from fitter import Fitter, get_common_distributions, get_distributions
-
-
-path1 = "stock1.csv"
-path2 = "stock2-1.csv"
 
 
 def run_fitter(path):
@@ -19,9 +14,9 @@ def run_fitter(path):
 
     # Fit the distribution
     height = dataset["Price"].values
-    f = Fitter(height)
-            #    distributions=get_common_distributions())
-            #     # distributions = get_distributions())
+    f = Fitter(height,
+               distributions=get_common_distributions())
+    #     # distributions = get_distributions())
 
     f.fit()
     f.summary()
@@ -29,12 +24,10 @@ def run_fitter(path):
     print()
     print("Best for " + path + ": ")
     print(f.get_best(method='sumsquare_error'))
+    print()
 
     # Display the graphs
     plt.title(path)
-    plt.show()
+    plt.savefig("results_{}.png".format(path))
 
-
-# Run the fitter on the two provided csv files
-run_fitter(path1)
-run_fitter(path2)
+run_fitter("stock1.csv")
